@@ -224,3 +224,5 @@ data/
 models/*.pkl
 models/*.joblib
 /data
+
+*.parquet
