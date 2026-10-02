@@ -1,10 +1,14 @@
 import joblib
 import pandas as pd
 from pathlib import Path
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
 from pydantic import BaseModel, Field
+from sqlalchemy.orm import Session
 
+from src.database import SessionLocal, PredictionLog, engine, Base
 from src.preprocessing_pipeline import DataPreprocessor
+
+Base.metadata.create_all(bind=engine)
 
 # Inicializamos la API
 app = FastAPI(
@@ -53,9 +57,16 @@ except Exception as e:
 def health_check():
     return {"status": "healthy", "message": "API funcionando correctamente"}
 
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
 # Endpoint de predicción
 @app.post("/predict", response_model=PredictionResponse)
-def predict(application: LoanApplication):
+def predict(application: LoanApplication, db: Session = Depends(get_db)):
     if model is None or preprocessor is None:
         raise HTTPException(status_code=500, detail="El modelo no está disponible.")
     
@@ -73,11 +84,23 @@ def predict(application: LoanApplication):
         # Extraer dinámicamente la probabilidad de "Rejected"
         rejected_index = list(model.classes_).index("Rejected")
         prob_rejected = probabilities[rejected_index]
-        
+
+        try:
+            # Usamos **application.model_dump() para desempaquetar el JSON directamente en las columnas de la tabla.
+            log_entry = PredictionLog(
+                **application.model_dump(), 
+                prediction=str(pred_class),
+                probability_rejected=float(prob_rejected))
+            db.add(log_entry)
+            db.commit()
+            
+        except Exception as db_error:
+            db.rollback()
+            print(f"Error al guardar log en DB: {db_error}")
+
         return PredictionResponse(
             prediction=str(pred_class),
-            probability_rejected=float(prob_rejected)
-        )
+            probability_rejected=float(prob_rejected))
         
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Error al procesar la predicción: {str(e)}")
