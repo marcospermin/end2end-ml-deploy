@@ -1,0 +1,21 @@
+# Entorno y credenciales
+.env
+*.env
+.venv/
+venv/
+env/
+
+# Control de versiones
+.git/
+.gitignore
+
+# Caché de Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Datos crudos o archivos pesados innecesarios en inferencia
+data/
+notebooks/
+*.md
