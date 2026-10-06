@@ -220,9 +220,6 @@ __marimo__/
 *.pyc
 
 data/
-
-models/*.pkl
-models/*.joblib
 /data
 
 *.parquet
