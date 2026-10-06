@@ -30,7 +30,7 @@ Este proyecto implementa una solución de Machine Learning de extremo a extremo 
 
 * **Flujo de Trabajo Git (Feature Branch):** Desarrollo modular donde cada componente (base de datos, preprocesamiento, API, frontend) se aisló en ramas `feature/*` antes de fusionarse a `main`.
 
-  ![Git Flow](data/raw/git-workflow.png)
+<img width="821" height="562" alt="git-workflow" src="https://github.com/user-attachments/assets/cc55ac48-8523-4adf-b49c-935fdb1e8bda" />
 
 * **Versionado de Datos (DVC):** Los datasets se gestionan mediante `data.dvc`, manteniendo el repositorio de Git liviano y garantizando reproducibilidad.
 * **Seguridad:** Variables y credenciales administradas estrictamente con `.env` (ignorado en Git) y documentadas en `.env.example`.
